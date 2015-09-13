@@ -6,22 +6,57 @@ $(window).scroll(function(){
 var quote_data = null;
 var markov_starter = {};
 var markov_data = {};
+var markov_starter_sum = 0;
+var markov_data_sums = {};
 var inv_m = true;
 
-var max_iters = 100;
+var max_iters = 50;
 
-var word_valid = "[a-zA-Z0-9]";
+var word_valid = "[a-zA-Z0-9\-’,]";
 
-var makeMarkovData = function (){
+function stripNonWord(word){
+    // Returns word and any non-word appended
+    // Strips all from it though
+    // "a!" -> ("a","!")
+    // "!a!" -> ("a","!")
+    // "a!a?" -> ("a","!?")
+    var new_word = "";
+    var non_word = "";
+    var seen_word_yet = false;
+    var started_end = false;
+    for (i=0; i<word.length; i++){
+        var charat = word[i];
+        if (charat.match(word_valid)){
+            seen_word_yet = true;
+            if (!started_end){
+                new_word += charat;
+            }
+        } else {
+            if (seen_word_yet){
+                non_word += charat;
+                started_end = true;
+            }
+        }
+    }
+    return [new_word, non_word.replace(/"/g,"")];
+}
+
+function makeMarkovData(){
+    markov_starter = {};
+    markov_data = {};
+    markov_starter_sum = 0;
+    markov_data_sums = {};
     for (quote in quote_data){
         var quote_table = quote.split(" ");
         var last_word = null;
         var ended_sentence = false;
         for (word_index in quote_table){
             word = quote_table[word_index].toLowerCase();
-            var last_char = word[word.length-1];
-            if (!last_char.match(word_valid)){
-                word = word.substring(0,word.length-1);
+            san_word = stripNonWord(word);
+            word = san_word[0];
+            var punct_word = san_word[1];
+
+            if (punct_word != ""){
                 ended_sentence = true;
             }
             // First edit mat for last word
@@ -52,12 +87,13 @@ var makeMarkovData = function (){
                 if (t==null){
                     markov_data[word] = {};
                 }
-                var t = markov_data[word][last_char];
+                var t = markov_data[word][punct_word];
                 if (t==null){
-                    markov_data[word][last_char] = 1;
+                    markov_data[word][punct_word] = 1;
                 } else {
-                    markov_data[word][last_char]++;
+                    markov_data[word][punct_word]++;
                 }
+                ended_sentence = false;
             }
         }
         // If it ended without punctuation
@@ -70,12 +106,28 @@ var makeMarkovData = function (){
             }
         }
     }
+    markov_starter_sum = 0;
+    markov_data_sums = {};
+    for (k in markov_starter){
+        markov_starter_sum += markov_starter[k];
+    }
+    for (word in markov_data){
+        markov_data_sums[word] = 0;
+        for (second_word in markov_data[word]){
+            markov_data_sums[word] += markov_data[word][second_word];
+        }
+    }
+    console.log(markov_starter);
+    console.log(markov_starter_sum);
+    console.log(markov_data);
+    console.log(markov_data_sums);
 }
 
 function makeMarkovQuote (){
     var m = 50;
     var starter = false;
     var word = randomProperty(markov_starter);
+    //var word = weightedProperty(markov_starter,markov_starter_sum);
     word = capitalizeFirstLetter(word);
     var s = word;
     var next_word = null
@@ -86,17 +138,26 @@ function makeMarkovQuote (){
         if (starter){
             arr = markov_starter;
             next_word = capitalizeFirstLetter(randomProperty(arr));
+            //var temp = weightedProperty(arr,markov_starter_sum);
+            //next_word = capitalizeFirstLetter(temp);
             starter = false;
         } else {
             arr = markov_data[word.toLowerCase()];
-            next_word = randomProperty(arr);
+            //next_word = randomProperty(arr);
+            next_word = weightedProperty(arr,markov_data_sums[word.toLowerCase()]);
         }
         if (next_word != null){
             if (!next_word.match(word_valid)){
                 s += next_word;
                 starter = true;
+                // Chance to end -> 50%
+                if (Math.random() >= 0.5){next_word = null;}
             } else {
-                s += " " + next_word;
+                if (next_word=="i"){
+                    s += " " + next_word.toUpperCase();
+                } else {
+                    s += " " + next_word;
+                }
             }
         }
         word = next_word;
@@ -113,7 +174,26 @@ function randomProperty(obj) {
     return keys[ keys.length * Math.random() << 0];
 };
 
+function weightedProperty(obj,total){
+    // {key:int ...}
+    console.log("Weighted property");
+    console.log(obj);
+    console.log(total);
+    var val = 1+(total*Math.random() << 0);
+    console.log(val);
+    keys = Object.keys(obj);
+    console.log(keys);
+    for (k=0; i<keys.length; k++){
+        key = keys[k];
+        val -= obj[key];
+        if (val<=0){console.log(key);return key;}
+    }
+    console.log(keys[keys.length-1]);
+    return keys[keys.length-1];
+}
+
 function capitalizeFirstLetter(string) {
+    if (string==null){return null;}
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -135,7 +215,7 @@ function addMarkov(list){
 }
 
 window.onscroll = function(ev) {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight-200) {
         // Make markov chain
         var myElem = document.getElementById('makequotes');
         var myList = document.getElementById('quote_list');
