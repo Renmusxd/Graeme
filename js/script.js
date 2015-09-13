@@ -117,6 +117,44 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function addMarkov(list){
+    for (i = 0; i < max_iters;i++){
+        var l_item = document.createElement("li");
+        list.appendChild(l_item);
+
+        var quote_content = document.createElement("p");
+        quote_content.setAttribute("id","quote_content");
+        quote_content.innerHTML = makeMarkovQuote();
+        l_item.appendChild(quote_content);
+
+        var quote_name = document.createElement("p");
+        quote_name.setAttribute("id","quote_name");
+        quote_name.innerHTML = "- Graeme Bailey";
+        l_item.appendChild(quote_name);
+    }
+}
+
+window.onscroll = function(ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        // Make markov chain
+        var myElem = document.getElementById('makequotes');
+        var myList = document.getElementById('quote_list');
+        if (myElem != null && myList != null){
+            var list = myList;
+            if (inv_m) {
+                $.getJSON('quotes.json', function (data){
+                    inv_m = (quote_data != data);
+                    quote_data = data;
+                    if (inv_m) {makeMarkovData();}
+                    addMarkov(list);
+                });
+            } else {
+                addMarkov(list);
+            }
+        }
+    }
+};
+
 $(document).ready( function() {
     var myElem = document.getElementById('quotes');
     if (myElem != null){
@@ -156,37 +194,10 @@ $(document).ready( function() {
                 inv_m = (quote_data != data);
                 quote_data = data;
                 if (inv_m) {makeMarkovData();}
-                for (i = 0; i < max_iters;i++){
-                    var l_item = document.createElement("li");
-                    list.appendChild(l_item);
-
-
-                    var quote_content = document.createElement("p");
-                    quote_content.setAttribute("id","quote_content");
-                    quote_content.innerHTML = makeMarkovQuote();
-                    l_item.appendChild(quote_content);
-
-                    var quote_name = document.createElement("p");
-                    quote_name.setAttribute("id","quote_name");
-                    quote_name.innerHTML = "- Graeme Bailey";
-                    l_item.appendChild(quote_name);
-                }
+                addMarkov(list);
             });
         } else {
-            for (i = 0; i < max_iters;i++){
-                var l_item = document.createElement("li");
-                list.appendChild(l_item);
-
-                var quote_content = document.createElement("p");
-                quote_content.setAttribute("id","quote_content");
-                quote_content.innerHTML = makeMarkovQuote();
-                l_item.appendChild(quote_content);
-
-                var quote_name = document.createElement("p");
-                quote_name.setAttribute("id","quote_name");
-                quote_name.innerHTML = "- Graeme Bailey";
-                l_item.appendChild(quote_name);
-            }
+            addMarkov(list);
         }
     }
 });
