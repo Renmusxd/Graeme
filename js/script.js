@@ -76,6 +76,7 @@ var makeMarkovQuote = function (){
     var m = 50;
     var starter = false;
     var word = randomProperty(markov_starter);
+    word = capitalizeFirstLetter(word);
     var s = word;
     var next_word = null
     while (word != null){
@@ -84,11 +85,12 @@ var makeMarkovQuote = function (){
         var arr = null;
         if (starter){
             arr = markov_starter;
+            next_word = capitalizeFirstLetter(randomProperty(arr));
             starter = false;
         } else {
-            arr = markov_data[word];
+            arr = markov_data[word.toLowerCase()];
+            next_word = randomProperty(arr);
         }
-        next_word = randomProperty(arr);
         if (next_word != null){
             if (!next_word.match(word_valid)){
                 s += next_word;
@@ -98,15 +100,22 @@ var makeMarkovQuote = function (){
             }
         }
         word = next_word;
+        if (word!=null){
+            word = word.toLowerCase();
+        }
     }
     return s;
 }
 
-var randomProperty = function (obj) {
+function randomProperty(obj) {
     if (obj==null){return null;}
     var keys = Object.keys(obj);
     return keys[ keys.length * Math.random() << 0];
 };
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 $(document).ready( function() {
     var myElem = document.getElementById('quotes');
