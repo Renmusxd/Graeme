@@ -176,19 +176,13 @@ function randomProperty(obj) {
 
 function weightedProperty(obj,total){
     // {key:int ...}
-    console.log("Weighted property");
-    console.log(obj);
-    console.log(total);
     var val = 1+(total*Math.random() << 0);
-    console.log(val);
     keys = Object.keys(obj);
-    console.log(keys);
     for (k=0; i<keys.length; k++){
         key = keys[k];
         val -= obj[key];
-        if (val<=0){console.log(key);return key;}
+        if (val<=0){return key;}
     }
-    console.log(keys[keys.length-1]);
     return keys[keys.length-1];
 }
 
