@@ -1,0 +1,65 @@
+
+body {
+    background-color:rgb(225,225,225);
+    font-family:"lucida calligraphy",arial,'sans serif'; 
+}
+
+p#quote_content{
+    font-size:14px;
+}
+
+p#quote_name {
+    font-size:12px;
+    margin-bottom: 100px;
+}
+
+div#floatbar {
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    background-image: 
+        -webkit-gradient(
+                linear,
+                left bottom,
+                left top,
+                color-stop(0.0, rgb(100,100,100)),
+                color-stop(0.72, rgb(50,50,50))
+            );
+}
+
+div#quotes {
+    width:50%;
+    margin:auto auto;
+    text-align:center;
+    background-color:white;
+}
+div#makequotes {
+    width:50%;
+    margin:auto auto;
+    text-align:center;
+    background-color:white;
+}
+
+ul#quote_list {
+    list-style-type: none;
+    margin-top:50px;
+}
+
+ul#menu {
+    overflow: auto;
+    width:100%;
+}
+
+ul#menu a{
+    color:white;
+    font-family:"lucida calligraphy",arial,'sans serif'; 
+    font-size:12px;
+}
+
+ul#menu li {
+    width: 20%;
+    display:inline-block;
+    text-align:center;
+    color: white;
+}
