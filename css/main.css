@@ -1,16 +1,16 @@
 
 body {
     background-color:rgb(225,225,225);
-    font-family:"lucida calligraphy",arial,'sans serif'; 
 }
 
 p#quote_content{
-    font-size:14px;
+    font-size:18px;
 }
 
 p#quote_name {
     font-size:12px;
-    margin-bottom: 100px;
+    margin-bottom: 80px;
+    font-family:"lucida calligraphy",arial,'sans serif'; 
 }
 
 div#floatbar {

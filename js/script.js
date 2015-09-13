@@ -72,7 +72,7 @@ var makeMarkovData = function (){
     }
 }
 
-var makeMarkovQuote = function (){
+function makeMarkovQuote (){
     var m = 50;
     var starter = false;
     var word = randomProperty(markov_starter);
